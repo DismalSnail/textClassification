@@ -4,11 +4,13 @@ import java.io.File
 import java.util
 
 import org.ansj.domain.Result
+import org.ansj.library.DicLibrary
 import org.ansj.recognition.impl.StopRecognition
 import org.ansj.splitWord.analysis.ToAnalysis
 import org.apache.commons.io.FileUtils
 
 import scala.collection.JavaConversions._
+
 
 object WordSplit {
   def corpusSegment(utfCorpusPath: String, utfSegmentPath: String, trainLabelListPath: String, trainSegmentPath: String): Unit = {
@@ -29,18 +31,19 @@ object WordSplit {
           .replace(" ", "")
           .replace("\u3000", "")
           .replace("\t", "")
+          .replaceAll(s"\\pP|\\pS|\\pC|\\pN|\\pZ", "")
           .trim
         )
 
-        val stopWordList: Seq[String] = FileUtils.readFileToString(new File("./hlt_stop_words.txt"))
+        val stopWordList: Seq[String] = FileUtils.readFileToString(new File("./stopWords/stop_word_chinese.txt"))
           .split("\r\n").toSeq
 
         val filter = new StopRecognition()
-        filter.insertStopNatures("w", null)
         filter.insertStopWords(stopWordList)
-        textSeg.recognition(filter)
+        val result: Result = textSeg.recognition(filter)
 
-        contextList.add(textSeg.toStringWithOutNature)
+
+        contextList.add(result.toStringWithOutNature)
         labelList.add(corpusClassDir.getName)
 
       }

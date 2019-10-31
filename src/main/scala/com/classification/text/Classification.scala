@@ -19,12 +19,11 @@ object Classification {
     val hashingTF: HashingTF = new HashingTF()
     val tf: RDD[Vector] = hashingTF.transform(documents)
     tf.cache()
-    val idf: IDFModel = new IDF().fit(tf)
+    val idf: IDFModel = new IDF(minDocFreq = 3).fit(tf)
     val tfIdf: RDD[Vector] = idf.transform(tf)
     val training: RDD[LabeledPoint] = tfIdf.map {
       vector: Vector => LabeledPoint(getDoubleOfLabel(labelList.next()), vector)
     }
-    training.foreach(println)
     NaiveBayes.train(training, lambda = 1.0, modelType = "multinomial")
   }
 
@@ -33,7 +32,7 @@ object Classification {
     val hashingTF: HashingTF = new HashingTF()
     val tf: RDD[Vector] = hashingTF.transform(documents)
     tf.cache()
-    val idf: IDFModel = new IDF().fit(tf)
+    val idf: IDFModel = new IDF(minDocFreq = 3).fit(tf)
     val tfIdf: RDD[Vector] = idf.transform(tf)
     val test: RDD[LabeledPoint] = tfIdf.map {
       vector: Vector => LabeledPoint(getDoubleOfLabel(labelList.next()), vector)
@@ -50,12 +49,12 @@ object Classification {
     val conf: SparkConf = new SparkConf().setAppName("Classification").setMaster("local")
     val sc: SparkContext = new SparkContext(conf)
     println(test(sc, "./test/test_seg.txt",
-                     "./test/test_label_list.txt",
-                      train(sc,
-                        "./train/train_seg.txt",
-                        "./train/train_label_list.txt"
-                      )
-                )
+      "./test/test_label_list.txt",
+      train(sc,
+        "./train/train_seg.txt",
+        "./train/train_label_list.txt"
+      )
+    )
     )
   }
 }

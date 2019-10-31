@@ -1,3 +1,0 @@
-i heard about spark and i love spark
-i wish java could use case classes
-logistic regression models are neat
